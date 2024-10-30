@@ -18,7 +18,7 @@ async function requestListener(req, res) {
   if (req.method === 'GET') {
     try {
       const data = await fs.readFile(filePath); // асинхронне читання файлу
-      res.writeHead(200, { 'Content-Type': 'image/jpеg' });
+      res.writeHead(200, { 'Content-Type': 'image/jpeg' });
       res.end(data);
     } catch (err) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
@@ -45,7 +45,7 @@ async function requestListener(req, res) {
     try {
       await fs.unlink(filePath); // асинхронне видалення файлу
       res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('\nOK');
+      res.end('\nOK, Deleted');
     } catch (err) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('\nNot Found');
