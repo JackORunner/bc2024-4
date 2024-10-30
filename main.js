@@ -1,6 +1,7 @@
 const { program } = require('commander');
 const http = require('http');
 const fs = require('fs').promises;
+const superagent = require('superagent');
 
 program
   .requiredOption('-h, --host <host>', 'address of the server')
@@ -17,12 +18,21 @@ async function requestListener(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const data = await fs.readFile(filePath); // асинхронне читання файлу
+      const data = await fs.readFile(filePath);
       res.writeHead(200, { 'Content-Type': 'image/jpeg' });
       res.end(data);
     } catch (err) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('\nNot Found');
+      try {
+        const response = await superagent.get(`https://http.cat/${code}`);
+        
+        await fs.writeFile(filePath, response.body);
+        
+        res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+        res.end(response.body);
+      } catch (fetchErr) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('\nNot Found');
+      }
     }
   } else if (req.method === 'PUT') {
     let imageData = [];
@@ -33,7 +43,7 @@ async function requestListener(req, res) {
 
     req.on('end', async () => {
       try {
-        await fs.writeFile(filePath, Buffer.concat(imageData)); // асинхронне записування файлу
+        await fs.writeFile(filePath, Buffer.concat(imageData));
         res.writeHead(201, { 'Content-Type': 'text/plain' });
         res.end('\nCreated');
       } catch (err) {
@@ -43,7 +53,7 @@ async function requestListener(req, res) {
     });
   } else if (req.method === 'DELETE') {
     try {
-      await fs.unlink(filePath); // асинхронне видалення файлу
+      await fs.unlink(filePath);
       res.writeHead(200, { 'Content-Type': 'text/plain' });
       res.end('\nOK, Deleted');
     } catch (err) {
@@ -61,4 +71,3 @@ const server = http.createServer(requestListener);
 server.listen(parseInt(port), host, () => {
   console.log(`Server running at http://${host}:${port}/`);
 });
-
