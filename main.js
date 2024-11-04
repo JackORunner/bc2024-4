@@ -55,7 +55,7 @@ async function requestListener(req, res) {
     try {
       await fs.unlink(filePath);
       res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('\nOK, Deleted');
+      res.end('\nOK');
     } catch (err) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('\nNot Found');
